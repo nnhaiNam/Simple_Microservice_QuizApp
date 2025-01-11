@@ -1,0 +1,104 @@
+services:
+    question-service:
+      build:
+        context: ./question-service
+        dockerfile: Dockerfile
+      ports:
+        - "8080:8080"
+      container_name: question-service-container
+      environment:
+        MYSQL_HOST: mysql-container
+        MYSQL_PORT: 3306
+        MYSQL_DB_NAME: questiondb
+        MYSQL_USER: root
+        MYSQL_PASSWORD: 642004
+        EUREKA_SERVER_URL: http://registry-service-container:8761/eureka
+      depends_on:
+        registry-service:
+          condition: service_healthy
+        mysql-container:
+          condition: service_healthy
+      networks:
+        - quiz-application-network
+
+    api-gateway:
+      build:
+        context: ./api-gateway
+        dockerfile: Dockerfile
+      ports:
+        - "8765:8765"
+      container_name: api-gateway-container
+      environment:
+        EUREKA_SERVER_URL: http://registry-service-container:8761/eureka
+      depends_on:
+        registry-service:
+          condition: service_healthy
+      networks:
+        - quiz-application-network
+
+
+    quiz-service:
+      build:
+        context: ./quiz-service
+        dockerfile: Dockerfile
+      container_name: quiz-service-container
+      environment:
+        MYSQL_HOST: mysql-container
+        MYSQL_PORT: 3306
+        MYSQL_DB_NAME: quizdb
+        MYSQL_USER: root
+        MYSQL_PASSWORD: 642004
+        EUREKA_SERVER_URL: http://registry-service-container:8761/eureka
+      ports:
+        - "8090:8090"
+      depends_on:
+        registry-service:
+          condition: service_healthy
+        mysql-container:
+          condition: service_healthy
+      networks:
+        - quiz-application-network
+
+    registry-service:
+      build:
+        context: ./registry-service
+        dockerfile: Dockerfile
+      container_name: registry-service-container
+      ports:
+        - "8761:8761"
+      networks:
+        - quiz-application-network
+      healthcheck:
+        test: [ "CMD", "curl", "-f", "http://127.0.0.1:8761" ]
+        interval: 20s
+        timeout: 5s
+        retries: 5
+        start_period: 30s
+
+    mysql-container:
+      image: mysql:latest
+      container_name: mysql-container
+      ports:
+        - "3307:3306"
+      environment:
+        MYSQL_ROOT_PASSWORD: 642004
+      volumes:
+        - mysql_data:/var/lib/mysql
+        - ./mysql-init-scripts:/docker-entrypoint-initdb.d
+      networks:
+        - quiz-application-network
+
+      healthcheck:
+        test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p642004" ]
+        interval: 10s
+        timeout: 5s
+        retries: 3
+        start_period: 30s
+
+
+networks:
+  quiz-application-network:
+    driver: bridge
+
+volumes:
+  mysql_data:

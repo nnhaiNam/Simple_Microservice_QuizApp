@@ -1,0 +1,63 @@
+Create network:
+docker network create quiz-application-network
+
+Create MYSQL image:
+docker run -d --name mysql-container \
+  --network=quiz-application-network \
+  -e MYSQL_ROOT_PASSWORD=642004 \
+  -e MYSQL_DATABASE=questiondb \
+  -e MYSQL_USER=harinem \
+  -e MYSQL_PASSWORD=642004 \
+  -p 3306:3306 \
+  -v mysql-data:/var/lib/mysql \
+  mysql:latest
+
+SHOW GRANTS FOR 'harinem'@'%';
+GRANT ALL PRIVILEGES ON `questiondb`.* TO 'harinem'@'%';
+FLUSH PRIVILEGES;
+
+
+Create container question
+docker run -d --name question-service-container \
+  --network=quiz-application-network \
+  -p 8080:8080 \
+  -e MYSQL_HOST=mysql-container \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DB_NAME=questiondb \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=642004 \
+  -e EUREKA_SERVER_URL=http://registry-service-container:8761/eureka \
+  nnhainam/question-service-img
+
+Create eureka
+docker run -d --name registry-service-container \
+  --network=quiz-application-network \
+  -p 8761:8761 \
+
+Create container quiz
+docker run -d --name quiz-service-container \
+  --network=quiz-application-network \
+  -p 8090:8090 \
+  -e MYSQL_HOST=mysql-container \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DB_NAME=quizdb \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=642004 \
+  -e EUREKA_SERVER_URL=http://registry-service-container:8761/eureka \
+  nnhainam/quiz-service-img
+
+
+================
+
+Create container question
+docker run -d --name question-service-container-v2 \
+  --network=quiz-application-network \
+  -p 8081:8080 \
+  -e MYSQL_HOST=mysql-container \
+  -e MYSQL_PORT=3306 \
+  -e MYSQL_DB_NAME=questiondb \
+  -e MYSQL_USER=root \
+  -e MYSQL_PASSWORD=642004 \
+  -e EUREKA_SERVER_URL=http://registry-service-container:8761/eureka \
+  nnhainam/question-service-img
+  
