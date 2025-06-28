@@ -27,4 +27,4 @@ The application is designed using a microservices model, consisting of:
 + API Gateway: Handles all requests from the client side and routes them to the corresponding services
 + Question service and Quiz service: are 2 main services representing the system's operations.
 
-![Architecture](QuizApplication/images/QuizMicrioservice.png)
+![Architecture](QuizApplication/images/QuizMicroservice.png)
