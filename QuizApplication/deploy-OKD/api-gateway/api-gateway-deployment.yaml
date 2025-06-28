@@ -1,0 +1,24 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: api-gateway-deployment
+  namespace: quiz-microservice
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: api-gateway
+  template:
+    metadata:
+      labels:
+        app: api-gateway
+    spec:
+      containers:
+        - name: api-gateway-container
+          image: nnhainam/api-gateway-img
+          ports:
+            - containerPort: 8765
+          env:
+            - name: EUREKA_SERVER_URL
+              value: "http://registry-service:8761/eureka"
+
