@@ -19,7 +19,7 @@ OKD 3.11 component structure of the project:
 
 Deployment on 3 EC2 on AWS platform. One node takes on the roles of Infrastructure Node and Worker Node
 
-![Architecture](images/OKD3.11.png)
+![Architecture](QuizApplication/images/OKD3.11.png)
 
 # ⚙️ System architecture of microservice
 The application is designed using a microservices model, consisting of:
@@ -27,4 +27,4 @@ The application is designed using a microservices model, consisting of:
 + API Gateway: Handles all requests from the client side and routes them to the corresponding services
 + Question service and Quiz service: are 2 main services representing the system's operations.
 
-![Architecture](images/QuizMicrioservice.png)
+![Architecture](QuizApplication/images/QuizMicrioservice.png)
